@@ -1,3 +1,4 @@
+from __future__ import annotations
 import dataclasses
 
 from param_type import ParamType
@@ -21,3 +22,16 @@ class ParamInfo:
         if self.duplication_index == 0:
             return f"ParamInfo({self.key}, {self.p_type.name})"
         return f"ParamInfo({self.key}, {self.p_type.name}, dup_idx={self.duplication_index})"
+
+
+@dataclasses.dataclass
+class SummarisedParamInfo:
+    key: str
+    count: int
+    p_type: ParamType = ParamType.Normal
+    duplication_index: int = 0
+    samples: list[str] = None
+
+    @staticmethod
+    def from_p_info(p_info: ParamInfo, count: int, p_type: ParamType, samples: list[str]) -> SummarisedParamInfo:
+        return SummarisedParamInfo(p_info.key, count, p_type, p_info.duplication_index, samples)
