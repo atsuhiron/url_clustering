@@ -24,14 +24,23 @@ class ParamInfo:
         return f"ParamInfo({self.key}, {self.p_type.name}, dup_idx={self.duplication_index})"
 
 
-@dataclasses.dataclass
 class SummarisedParamInfo:
-    key: str
-    count: int
-    p_type: ParamType = ParamType.Normal
-    duplication_index: int = 0
-    samples: list[str] = None
+    def __init__(self, key: str, count: int, p_type: ParamType, samples: list[str], non_null_indices: list[int], duplication_index: int = 0):
+        self.key = key
+        self.count = count
+        self.p_type = p_type
+        self.duplication_index = duplication_index
+        self.samples = samples
+        self.non_null_indices = non_null_indices
+        self.dist_arr = None
 
     @staticmethod
-    def from_p_info(p_info: ParamInfo, count: int, p_type: ParamType, samples: list[str]) -> SummarisedParamInfo:
-        return SummarisedParamInfo(p_info.key, count, p_type, p_info.duplication_index, samples)
+    def from_p_info(p_info: ParamInfo, count: int, p_type: ParamType, samples: list[str], non_null_indices: list[int]) -> SummarisedParamInfo:
+        assert len(samples) == len(non_null_indices)
+        return SummarisedParamInfo(p_info.key, count, p_type, samples, non_null_indices, p_info.duplication_index)
+
+    def __str__(self):
+        if self.duplication_index == 0:
+            return f"SummarisedParamInfo({self.key}, {self.p_type.name}, count={self.count}, )"
+        return f"SummarisedParamInfo({self.key}, {self.p_type.name}, count={self.count}, dup_idx={self.duplication_index})"
+

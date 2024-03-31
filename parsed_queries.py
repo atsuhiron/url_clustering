@@ -18,14 +18,16 @@ class ParsedQueries:
             p_info_set.update(sub_param_set)
         p_info_to_p_type_map = {p_info: [] for p_info in p_info_set}
         p_info_to_samples_map = {p_info: [] for p_info in p_info_set}
+        p_info_to_nni_map = {p_info: [] for p_info in p_info_set}
 
         # 転置
         # p_info_to_p_type_map = {p_info: [Normal, Normal, ...], p_info: [Boolean, Boolean, ...]}
         # p_info_to_samples_map = {p_info: [234, 55, ...], p_info: [true, false, ...]}
-        for param_dict in queries:
+        for idx, param_dict in enumerate(queries):
             for p_info in param_dict.keys():
                 p_info_to_p_type_map[p_info].append(p_info.p_type)
                 p_info_to_samples_map[p_info].append(param_dict[p_info])
+                p_info_to_nni_map[p_info].append(idx)
 
         # 最頻値を集計
         p_info_to_mft_map = {}
@@ -45,7 +47,8 @@ class ParsedQueries:
                 p_info,
                 len(p_info_to_samples_map[p_info]),
                 p_info_to_mft_map[p_info],
-                p_info_to_samples_map[p_info]
+                p_info_to_samples_map[p_info],
+                p_info_to_nni_map[p_info]
             )
             summary_list.append(summary)
 
