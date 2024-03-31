@@ -1,5 +1,9 @@
 from collections import Counter
 
+import numpy as np
+import rapidfuzz.process as rapidfuzz_p
+import rapidfuzz.distance as rapidfuzz_d
+
 from param_info import ParamInfo
 from param_info import SummarisedParamInfo
 
@@ -8,6 +12,11 @@ class ParsedQueries:
     def __init__(self, queries: list[dict[ParamInfo, str]]):
         self._queries = queries
         self.summary = self.summarize(self._queries)
+        self.summary = self.calc_paramwise_dist(self.summary)
+        self.total_dist = self.calc_total_dist(self.summary)
+
+    def __len__(self) -> int:
+        return len(self.summary)
 
     @staticmethod
     def summarize(queries: list[dict[ParamInfo, str]]) -> list[SummarisedParamInfo]:
@@ -18,7 +27,7 @@ class ParsedQueries:
             p_info_set.update(sub_param_set)
         p_info_to_p_type_map = {p_info: [] for p_info in p_info_set}
         p_info_to_samples_map = {p_info: [] for p_info in p_info_set}
-        p_info_to_nni_map = {p_info: [] for p_info in p_info_set}
+        p_info_to_nni_map = {p_info: set() for p_info in p_info_set}
 
         # 転置
         # p_info_to_p_type_map = {p_info: [Normal, Normal, ...], p_info: [Boolean, Boolean, ...]}
@@ -27,7 +36,7 @@ class ParsedQueries:
             for p_info in param_dict.keys():
                 p_info_to_p_type_map[p_info].append(p_info.p_type)
                 p_info_to_samples_map[p_info].append(param_dict[p_info])
-                p_info_to_nni_map[p_info].append(idx)
+                p_info_to_nni_map[p_info].add(idx)
 
         # 最頻値を集計
         p_info_to_mft_map = {}
@@ -53,3 +62,19 @@ class ParsedQueries:
             summary_list.append(summary)
 
         return summary_list
+
+    @staticmethod
+    def calc_paramwise_dist(summary: list[SummarisedParamInfo]) -> list[SummarisedParamInfo]:
+        for param in summary:
+            none_fill_sample = param.create_none_fill_samples(len(summary))
+            # None の扱いが困る: cdist(None, None) = 1
+            dist_arr = rapidfuzz_p.cdist(none_fill_sample, none_fill_sample, scorer=rapidfuzz_d.JaroWinkler.normalized_distance)
+            param.dist_arr = dist_arr
+        return summary
+
+    @staticmethod
+    def calc_total_dist(summary: list[SummarisedParamInfo]) -> np.ndarray:
+        total_dist = np.zeros_like(summary[0].dist_arr)
+        for param in summary:
+            total_dist += param.dist_arr
+        return total_dist

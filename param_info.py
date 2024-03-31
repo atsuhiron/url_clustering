@@ -25,7 +25,7 @@ class ParamInfo:
 
 
 class SummarisedParamInfo:
-    def __init__(self, key: str, count: int, p_type: ParamType, samples: list[str], non_null_indices: list[int], duplication_index: int = 0):
+    def __init__(self, key: str, count: int, p_type: ParamType, samples: list[str], non_null_indices: set[int], duplication_index: int = 0):
         self.key = key
         self.count = count
         self.p_type = p_type
@@ -34,13 +34,19 @@ class SummarisedParamInfo:
         self.non_null_indices = non_null_indices
         self.dist_arr = None
 
+    def create_none_fill_samples(self, max_size: int) -> list[str | None]:
+        nfs = [None] * max_size
+        for idx, sample in zip(self.non_null_indices, self.samples):
+            nfs[idx] = sample
+        return nfs
+
     @staticmethod
-    def from_p_info(p_info: ParamInfo, count: int, p_type: ParamType, samples: list[str], non_null_indices: list[int]) -> SummarisedParamInfo:
+    def from_p_info(p_info: ParamInfo, count: int, p_type: ParamType, samples: list[str],
+                    non_null_indices: set[int]) -> SummarisedParamInfo:
         assert len(samples) == len(non_null_indices)
         return SummarisedParamInfo(p_info.key, count, p_type, samples, non_null_indices, p_info.duplication_index)
 
     def __str__(self):
         if self.duplication_index == 0:
-            return f"SummarisedParamInfo({self.key}, {self.p_type.name}, count={self.count}, )"
+            return f"SummarisedParamInfo({self.key}, {self.p_type.name}, count={self.count})"
         return f"SummarisedParamInfo({self.key}, {self.p_type.name}, count={self.count}, dup_idx={self.duplication_index})"
-
