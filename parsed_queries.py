@@ -12,8 +12,8 @@ class ParsedQueries:
     def __init__(self, queries: list[dict[ParamInfo, str]]):
         self._queries = queries
         self.summary = self.summarize(self._queries)
-        self.summary = self.calc_paramwise_dist(self.summary)
-        self.total_dist = self.calc_total_dist(self.summary)
+        self.summary = self.calc_paramwise_dist(self.summary, len(self._queries))
+        self.total_dist = self.calc_total_dist(self.summary, len(self._queries))
 
     def __len__(self) -> int:
         return len(self.summary)
@@ -64,17 +64,18 @@ class ParsedQueries:
         return summary_list
 
     @staticmethod
-    def calc_paramwise_dist(summary: list[SummarisedParamInfo]) -> list[SummarisedParamInfo]:
+    def calc_paramwise_dist(summary: list[SummarisedParamInfo], query_size: int) -> list[SummarisedParamInfo]:
         for param in summary:
-            none_fill_sample = param.create_none_fill_samples(len(summary))
-            # None の扱いが困る: cdist(None, None) = 1
+            none_fill_sample = param.create_none_fill_samples(query_size)
+            # TODO: ParamType ごとの変換処理を入れる
             dist_arr = rapidfuzz_p.cdist(none_fill_sample, none_fill_sample, scorer=rapidfuzz_d.JaroWinkler.normalized_distance)
+            np.fill_diagonal(dist_arr, 0)
             param.dist_arr = dist_arr
         return summary
 
     @staticmethod
-    def calc_total_dist(summary: list[SummarisedParamInfo]) -> np.ndarray:
-        total_dist = np.zeros_like(summary[0].dist_arr)
-        for param in summary:
-            total_dist += param.dist_arr
-        return total_dist
+    def calc_total_dist(summary: list[SummarisedParamInfo], query_size: int) -> np.ndarray:
+        total_dist = np.zeros((len(summary), query_size, query_size))
+        for pi, param in enumerate(summary):
+            total_dist[pi] = param.dist_arr
+        return total_dist.sum(axis=0)
