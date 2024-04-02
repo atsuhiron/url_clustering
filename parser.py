@@ -2,7 +2,9 @@ from param_type import ParamType
 from param_info import ParamInfo
 
 
-def estimate_p_type(value: str) -> ParamType:
+def estimate_p_type(value: str | None) -> ParamType:
+    if value is None:
+        return ParamType.Normal
     if value.lower() == "true" or value.lower() == "false":
         return ParamType.Boolean
     if value.count(".") > 1:
