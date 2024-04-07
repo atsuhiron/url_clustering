@@ -25,4 +25,5 @@ def draw_coord_for_sample(coord: np.ndarray, original: np.ndarray):
         plt.plot([coord[i, 0], original[i, 0]], [coord[i, 1], original[i, 1]], ls="-", color="gray")
     plt.plot(coord[:, 0], coord[:, 1], "o", label="reconstructed")
     plt.plot(original[:, 0], original[:, 1], "o", label="original")
+    plt.legend()
     plt.show()
