@@ -1,12 +1,25 @@
 import numpy as np
 
 
-def gen_data(size: int) -> np.ndarray:
+def gen_data(size: int) -> tuple[np.ndarray, np.ndarray]:
+    """
+    サンプル用データを生成する
+
+    Parameters
+    ----------
+    size: int
+        生成するデータ点の数
+
+    Returns
+    -------
+    coord, distance: tuple[np.ndarray, np.ndarray]
+        それぞれデータ点の座標とお互いのデータ点との距離
+    """
     data = np.random.random((size, 2))
-    return data - np.array([data.mean(axis=0)])
+    return data - np.array([data.mean(axis=0)]), _calc_dist_sq(data)
 
 
-def calc_dist_sq(pos: np.ndarray) -> np.ndarray:
+def _calc_dist_sq(pos: np.ndarray) -> np.ndarray:
     num = len(pos)
     dim = len(pos[0])
 
@@ -18,8 +31,7 @@ def calc_dist_sq(pos: np.ndarray) -> np.ndarray:
 
 
 if __name__ == "__main__":
-    sample = gen_data(6)
-    dist = calc_dist_sq(sample)
+    sample, dist = gen_data(6)
     print(sample)
     print(dist)
     

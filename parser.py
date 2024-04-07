@@ -12,7 +12,7 @@ def estimate_p_type(value: str | None) -> ParamType:
     return ParamType.Normal
 
 
-def to_dict(query: str) -> dict[ParamInfo, str]:
+def _to_dict_core(query: str) -> dict[ParamInfo, str]:
     kv_pairs = {}
     key_set = set()
     for kv_str in query.split("&"):
@@ -39,3 +39,7 @@ def to_dict(query: str) -> dict[ParamInfo, str]:
         key_set.update(kv_pair[0])
         kv_pairs[p_info] = kv_pair[1]
     return kv_pairs
+
+
+def to_dict(queries: list[str]) -> list[dict[ParamInfo, str]]:
+    return [_to_dict_core(query) for query in queries]

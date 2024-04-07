@@ -18,6 +18,9 @@ class ParsedQueries:
     def __len__(self) -> int:
         return len(self.summary)
 
+    def get_total_dist(self) -> np.ndarray:
+        return self.total_dist
+
     @staticmethod
     def summarize(queries: list[dict[ParamInfo, str]]) -> list[SummarisedParamInfo]:
         # 転置辞書作成

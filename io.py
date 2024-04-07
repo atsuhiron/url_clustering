@@ -14,7 +14,9 @@ def read_txt(file_path: str, skip_header: bool) -> list[str]:
     with open(file_path, "r") as f:
         lines = f.readlines()
 
+    if skip_header:
+        lines = lines[1:]
+
     lines = map(_strip, lines)
     lines = filter(lambda line: len(line) > 0, lines)
     return list(lines)
-    
