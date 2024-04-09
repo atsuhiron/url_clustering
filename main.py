@@ -2,7 +2,7 @@ import argparse
 
 import parser
 import parsed_queries
-import io
+import file_io
 import url_locater
 import gen_sample_data
 import graphix
@@ -25,12 +25,12 @@ if __name__ == "__main__":
     else:
         if file_name.endswith("csv"):
             assert args.column is not None, "Input column name"
-            urls = io.read_csv(file_name, args.column, ",")
+            urls = file_io.read_csv(file_name, args.column, ",")
         elif file_name.endswith("tsv"):
             assert args.column is not None, "Input column name"
-            urls = io.read_csv(file_name, args.column, "\t")
+            urls = file_io.read_csv(file_name, args.column, "\t")
         elif file_name.endswith("txt"):
-            urls = io.read_txt(file_name, bool(args.skip_header))
+            urls = file_io.read_txt(file_name, bool(args.skip_header))
         else:
             raise ValueError(f"Not supported file type: {file_name}")
 
