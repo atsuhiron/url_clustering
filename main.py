@@ -1,7 +1,6 @@
 import argparse
 
-import parser
-import parsed_queries
+from query_parsing import parsed_queries, parser
 import file_io
 import url_locater
 import gen_sample_data
