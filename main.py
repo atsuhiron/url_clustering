@@ -41,5 +41,5 @@ if __name__ == "__main__":
         dist = pq.get_total_dist()
         graphix.draw_dist_mat(dist)
 
-        coord = url_locater.locate_svd(dist)
+        coord = dist.reconstruct_coord()
         graphix.draw_coord(coord)

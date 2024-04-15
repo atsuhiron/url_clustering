@@ -6,6 +6,7 @@ import rapidfuzz.distance as rapidfuzz_d
 
 from param_info import ParamInfo
 from param_info import SummarisedParamInfo
+from vo.total_dist import TotalDist
 
 
 class ParsedQueries:
@@ -18,8 +19,8 @@ class ParsedQueries:
     def __len__(self) -> int:
         return len(self.summary)
 
-    def get_total_dist(self) -> np.ndarray:
-        return self.total_dist
+    def get_total_dist(self) -> TotalDist:
+        return TotalDist(self.total_dist)
 
     @staticmethod
     def summarize(queries: list[dict[ParamInfo, str]]) -> list[SummarisedParamInfo]:

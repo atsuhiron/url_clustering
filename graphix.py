@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from vo.total_dist import TotalDist
 
-def draw_dist_mat(dist: np.ndarray):
-    plt.imshow(dist)
+
+def draw_dist_mat(dist: TotalDist):
+    plt.imshow(dist.dist)
     plt.show()
 
 
@@ -14,6 +16,10 @@ def draw_coord(coord: np.ndarray):
 
     plt.plot(coord[:, 0], coord[:, 1], "o")
     plt.show()
+
+
+def draw_(reconstructed_coord: np.ndarray):
+    pass
 
 
 def draw_coord_for_sample(coord_1: np.ndarray, coord_2: np.ndarray, original: np.ndarray):
