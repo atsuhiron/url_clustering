@@ -13,7 +13,7 @@ class TotalDist:
 
     @property
     def shape(self) -> tuple[int, ...]:
-        return self.shape
+        return self.dist.shape
 
     def __len__(self) -> int:
         return len(self.dist)
