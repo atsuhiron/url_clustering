@@ -4,8 +4,8 @@ import numpy as np
 import rapidfuzz.process as rapidfuzz_p
 import rapidfuzz.distance as rapidfuzz_d
 
-from param_info import ParamInfo
-from param_info import SummarisedParamInfo
+from query_parsing.param_info import ParamInfo
+from query_parsing.param_info import SummarisedParamInfo
 from vo.total_dist import TotalDist
 
 

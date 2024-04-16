@@ -1,7 +1,7 @@
 from __future__ import annotations
 import dataclasses
 
-from param_type import ParamType
+from query_parsing.param_type import ParamType
 
 
 @dataclasses.dataclass

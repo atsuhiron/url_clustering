@@ -1,5 +1,5 @@
-from param_type import ParamType
-from param_info import ParamInfo
+from query_parsing.param_type import ParamType
+from query_parsing.param_info import ParamInfo
 
 
 def estimate_p_type(value: str | None) -> ParamType:
