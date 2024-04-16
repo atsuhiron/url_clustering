@@ -1,6 +1,7 @@
 import numpy as np
 
 import url_locater
+from vo.reconst_coord import ReconstCoord
 
 
 class TotalDist:
@@ -18,9 +19,5 @@ class TotalDist:
     def __len__(self) -> int:
         return len(self.dist)
 
-    def reconstruct_coord(self) -> np.ndarray:
-        return url_locater.locate_eigh(self.dist)
-
-    def calc_ccr(self) -> np.ndarray:
-        # cumulative contribution ratio
-        pass
+    def reconstruct_coord(self) -> ReconstCoord:
+        return ReconstCoord(url_locater.locate_eigh(self.dist), self.dist)

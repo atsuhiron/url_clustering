@@ -42,3 +42,6 @@ if __name__ == "__main__":
 
         coord = dist.reconstruct_coord()
         graphix.draw_coord(coord)
+
+        errors = coord.calc_reconstruction_error()
+        graphix.draw_reconstruction_error(errors)

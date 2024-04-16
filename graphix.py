@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from vo.total_dist import TotalDist
+from vo.reconst_coord import ReconstCoord
 
 
 def draw_dist_mat(dist: TotalDist):
@@ -9,17 +10,20 @@ def draw_dist_mat(dist: TotalDist):
     plt.show()
 
 
-def draw_coord(coord: np.ndarray):
+def draw_coord(coord: ReconstCoord):
     # TODO: クラスタリングに対応させる
     assert coord.ndim == 2, f"Not supported shape: {coord.shape}"
     assert coord.shape[1] > 1, f"Not supported shape: {coord.shape}"
 
-    plt.plot(coord[:, 0], coord[:, 1], "o")
+    _coord = coord.coord
+    plt.plot(_coord[:, 0], _coord[:, 1], "o")
     plt.show()
 
 
-def draw_(reconstructed_coord: np.ndarray):
-    pass
+def draw_reconstruction_error(reconstruction_error: np.ndarray):
+    plt.plot(reconstruction_error)
+    plt.yscale("log")
+    plt.show()
 
 
 def draw_coord_for_sample(coord_1: np.ndarray, coord_2: np.ndarray, original: np.ndarray):
