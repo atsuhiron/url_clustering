@@ -19,8 +19,8 @@ if __name__ == "__main__":
     if file_name is None:
         print("Use random sample data")
         ori_coord, dist = gen_sample_data.gen_data(10)
-        coord_s = url_locater.locate_svd(dist)
-        coord_e = url_locater.locate_eigh(dist)
+        coord_s, _ = url_locater.locate_svd(dist)
+        coord_e, _ = url_locater.locate_eigh(dist)
         graphix.draw_coord_for_sample(coord_s, coord_e, ori_coord)
     else:
         if file_name.endswith("csv"):

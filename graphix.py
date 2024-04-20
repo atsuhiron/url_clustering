@@ -15,7 +15,7 @@ def draw_coord(coord: ReconstCoord):
     assert coord.ndim == 2, f"Not supported shape: {coord.shape}"
     assert coord.shape[1] > 1, f"Not supported shape: {coord.shape}"
 
-    _coord = coord.coord
+    _coord = coord.get_sorted_coord()
     plt.plot(_coord[:, 0], _coord[:, 1], "o")
     plt.show()
 
