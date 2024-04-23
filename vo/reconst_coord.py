@@ -28,8 +28,4 @@ class ReconstCoord:
         return _sorted[:, 0:deg]
 
     def calc_reconstruction_error(self) -> np.ndarray:
-        errors = np.zeros(len(self))
-        for ii in range(len(self)):
-            rec_dist = alg.calc_dist_sq(self.coord[0: ii + 1])
-            errors[ii] = np.sum(np.square(self._dist - rec_dist))
-        return np.sqrt(errors)
+        return alg.calc_reconstruction_error_core(self.coord, self._dist)
