@@ -18,6 +18,6 @@ def calc_dist_sq(pos: np.ndarray) -> np.ndarray:
 def calc_reconstruction_error_core(coord: np.ndarray, dist: np.ndarray) -> np.ndarray:
     errors = np.zeros(len(coord), dtype=np.float64)
     for ii in range(len(coord)):
-        rec_dist = calc_dist_sq(coord[0: ii + 1])
+        rec_dist = calc_dist_sq(coord[:, 0: ii + 1])
         errors[ii] = np.sum(np.square(dist - rec_dist))
     return np.sqrt(errors)
