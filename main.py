@@ -1,10 +1,13 @@
 import argparse
 
+import faker
+
 from query_parsing import parsed_queries, parser
 import file_io
-import url_locater
-import gen_sample_data
 import graphix
+import fake_query_generator.fq_generator as fq_g
+import fake_query_generator.fq_cluster as fq_c
+import fake_query_generator.fq_param as fq_p
 
 
 if __name__ == "__main__":
@@ -18,10 +21,15 @@ if __name__ == "__main__":
     file_name: str = args.file
     if file_name is None:
         print("Use random sample data")
-        ori_coord, dist = gen_sample_data.gen_data(10)
-        coord_s, _ = url_locater.locate_svd(dist)
-        coord_e, _ = url_locater.locate_eigh(dist)
-        graphix.draw_coord_for_sample(coord_s, coord_e, ori_coord)
+
+        fake = faker.Faker()
+        fq_gen = fq_g.FQGenerator(
+            [
+                fq_c.FQCluster([fq_p.FQParam("name1", fake.name)], 0.4),
+                fq_c.FQCluster([fq_p.FQParam("name2", fake.name)], 0.6)
+            ]
+        )
+        urls = fq_gen.generate(40)
     else:
         if file_name.endswith("csv"):
             assert args.column is not None, "Input column name"
@@ -34,14 +42,14 @@ if __name__ == "__main__":
         else:
             raise ValueError(f"Not supported file type: {file_name}")
 
-        parsed = parser.to_dict(urls)
-        pq = parsed_queries.ParsedQueries(parsed)
+    parsed = parser.to_dict(urls)
+    pq = parsed_queries.ParsedQueries(parsed)
 
-        dist = pq.get_total_dist()
-        graphix.draw_dist_mat(dist)
+    dist = pq.get_total_dist()
+    graphix.draw_dist_mat(dist)
 
-        coord = dist.reconstruct_coord()
-        graphix.draw_coord(coord)
+    coord = dist.reconstruct_coord()
+    graphix.draw_coord(coord)
 
-        errors = coord.calc_reconstruction_error()
-        graphix.draw_reconstruction_error(errors)
+    errors = coord.calc_reconstruction_error()
+    graphix.draw_reconstruction_error(errors)
