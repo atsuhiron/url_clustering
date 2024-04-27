@@ -2,7 +2,7 @@ import numpy as np
 import numba
 
 
-@numba.njit()
+@numba.njit("f8[:,:](f8[:,:])")
 def calc_dist_sq(pos: np.ndarray) -> np.ndarray:
     num = len(pos)
     dim = len(pos[0])
@@ -14,10 +14,10 @@ def calc_dist_sq(pos: np.ndarray) -> np.ndarray:
     return distance_sq_by_dim.sum(axis=2)
 
 
-@numba.njit()
+@numba.jit("f8[:](f8[:,:],f8[:,:])", nopython=True, parallel=True)
 def calc_reconstruction_error_core(coord: np.ndarray, dist: np.ndarray) -> np.ndarray:
     errors = np.zeros(len(coord), dtype=np.float64)
-    for ii in range(len(coord)):
+    for ii in numba.prange(len(coord)):
         rec_dist = calc_dist_sq(coord[:, 0: ii + 1])
         errors[ii] = np.sum(np.square(dist - rec_dist))
     return np.sqrt(errors)
