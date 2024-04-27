@@ -5,9 +5,9 @@ import faker
 from query_parsing import parsed_queries, parser
 import file_io
 import graphix
-import fake_query_generator.fq_generator as fq_g
-import fake_query_generator.fq_cluster as fq_c
-import fake_query_generator.fq_param as fq_p
+from fake_query_generator.fq_generator import FQGenerator
+from fake_query_generator.fq_cluster import FQCluster
+from fake_query_generator.fq_param import FQParam
 
 
 if __name__ == "__main__":
@@ -23,13 +23,26 @@ if __name__ == "__main__":
         print("Use random sample data")
 
         fake = faker.Faker()
-        fq_gen = fq_g.FQGenerator(
+        fq_gen = FQGenerator(
             [
-                fq_c.FQCluster([fq_p.FQParam("name1", fake.name)], 0.4),
-                fq_c.FQCluster([fq_p.FQParam("name2", fake.name)], 0.6)
+                FQCluster(
+                    [
+                        FQParam("name1", fake.name),
+                        FQParam("use-something", fake.boolean, 0.5, False),
+                        FQParam("coord", fake.coordinate, do_url_encode=False)
+                    ],
+                    0.4
+                ),
+                FQCluster(
+                    [
+                        FQParam("name2", fake.name),
+                        FQParam("use-something", fake.boolean, 0.5, False)
+                    ],
+                    0.6
+                )
             ]
         )
-        urls = fq_gen.generate(40)
+        urls = fq_gen.generate(50)
     else:
         if file_name.endswith("csv"):
             assert args.column is not None, "Input column name"
