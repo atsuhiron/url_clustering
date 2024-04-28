@@ -55,7 +55,13 @@ if __name__ == "__main__":
         assert x.shape[1] == mean.shape[1], f"Invalid ndarray shape of mean: {mean.shape}"
 
         r = np.linalg.norm(x - mean, axis=1)
-        return ss.norm.pdf(r - shift, scale=sigma, loc=mean)
+        return ss.norm.pdf(r - shift, scale=sigma, loc=0)
 
 
+    xx, yy = np.meshgrid(np.linspace(-5, 5, 101), np.linspace(-5, 5, 101))
+    arr = np.zeros((101 ** 2, 2))
+    for ii, (x, y) in enumerate(zip(xx.flatten(), yy.flatten())):
+        arr[ii, 0] = x
+        arr[ii, 1] = y
 
+    ret = caldera(arr, 1.1, np.array([0, 0]), 2.0)
