@@ -42,7 +42,7 @@ if __name__ == "__main__":
                 )
             ]
         )
-        urls = fq_gen.generate(50)
+        urls = fq_gen.generate(20)
     else:
         if file_name.endswith("csv"):
             assert args.column is not None, "Input column name"
@@ -57,6 +57,10 @@ if __name__ == "__main__":
 
     parsed = parser.to_dict(urls)
     pq = parsed_queries.ParsedQueries(parsed)
+
+    new_q = fq_gen.generate(2)
+    new_parsed = parser.to_dict(new_q)
+    pq.add_query(new_parsed[0])
 
     dist = pq.get_total_dist()
     graphix.draw_dist_mat(dist)
