@@ -29,39 +29,3 @@ class ReconstCoord:
 
     def calc_reconstruction_error(self) -> np.ndarray:
         return alg.calc_reconstruction_error_core(self.coord, self._dist)
-
-    def append(self, dist_from: np.ndarray):
-        assert dist_from.ndim == 1
-        assert dist_from.shape[0] == self.coord.shape[1]
-
-
-if __name__ == "__main__":
-    import scipy.stats as ss
-    import numpy as np
-
-    def caldera(x, sigma, mean, shift) -> float:
-        if isinstance(x, float) or isinstance(x, int):
-            x = np.array([[x]])
-        elif isinstance(x, np.ndarray) and x.ndim == 1:
-            x = x[np.newaxis, :]
-        elif isinstance(x, np.ndarray) and x.ndim != 2:
-            assert False, f"Invalid ndarray shape of x: {x.shape}"
-
-        if isinstance(mean, float) or isinstance(mean, int):
-            mean = np.array([mean])
-        elif not isinstance(mean, np.ndarray):
-            raise TypeError
-        mean = mean[np.newaxis, :]
-        assert x.shape[1] == mean.shape[1], f"Invalid ndarray shape of mean: {mean.shape}"
-
-        r = np.linalg.norm(x - mean, axis=1)
-        return ss.norm.pdf(r - shift, scale=sigma, loc=0)
-
-
-    xx, yy = np.meshgrid(np.linspace(-5, 5, 101), np.linspace(-5, 5, 101))
-    arr = np.zeros((101 ** 2, 2))
-    for ii, (x, y) in enumerate(zip(xx.flatten(), yy.flatten())):
-        arr[ii, 0] = x
-        arr[ii, 1] = y
-
-    ret = caldera(arr, 1.1, np.array([0, 0]), 2.0)
