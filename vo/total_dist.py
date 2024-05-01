@@ -20,5 +20,4 @@ class TotalDist:
         return len(self.dist)
 
     def reconstruct_coord(self) -> ReconstCoord:
-        coord, order = url_locater.locate_eigh(self.dist)
-        return ReconstCoord(coord, order, self.dist)
+        return ReconstCoord(url_locater.locate_eigh(self.dist), self.dist)

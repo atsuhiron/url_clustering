@@ -12,7 +12,6 @@ def draw_dist_mat(dist: TotalDist):
 
 def draw_coord(coord: ReconstCoord):
     # TODO: クラスタリングに対応させる
-    assert coord.ndim == 2, f"Not supported shape: {coord.shape}"
     assert coord.shape[1] > 1, f"Not supported shape: {coord.shape}"
 
     _coord = coord.get_sorted_coord()

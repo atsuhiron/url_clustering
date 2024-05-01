@@ -1,31 +1,28 @@
 import numpy as np
 
 import util.algrithm as alg
+from vo.location_result import BatchLocationResult
 
 
 class ReconstCoord:
-    def __init__(self, coord: np.ndarray, order: np.ndarray, dist: np.ndarray):
-        assert coord.ndim == 2
-        assert coord.shape[0] == coord.shape[1]
-        self.coord = coord
+    def __init__(self, loc_result: BatchLocationResult, dist: np.ndarray):
+        self.loc_result = loc_result
         self._dist = dist
-        self._order = order
-
-    @property
-    def ndim(self) -> int:
-        return self.coord.ndim
 
     @property
     def shape(self) -> tuple[int, ...]:
-        return self.coord.shape
+        return self.loc_result.coord.shape
 
     def __len__(self) -> int:
-        return len(self.coord)
+        return len(self.loc_result.coord)
 
     def get_sorted_coord(self, deg: int = 2) -> np.ndarray:
-        assert deg > 0
-        _sorted = self.coord[:, self._order]
+        if deg < 0:
+            raise ValueError(f"Degree must be positive: {deg}")
+        if deg >= self.loc_result.first_negative_index:
+            raise ValueError(f"Degree must be less than the first negative eigenvalue index: {deg} >= {self.loc_result.first_negative_index}")
+        _sorted = self.loc_result.coord[:, self.loc_result.order]
         return _sorted[:, 0:deg]
 
     def calc_reconstruction_error(self) -> np.ndarray:
-        return alg.calc_reconstruction_error_core(self.coord, self._dist)
+        return alg.calc_reconstruction_error_core(self.loc_result.coord, self._dist, self.loc_result.first_negative_index - 1)

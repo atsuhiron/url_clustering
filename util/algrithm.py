@@ -14,10 +14,10 @@ def calc_dist_sq(pos: np.ndarray) -> np.ndarray:
     return distance_sq_by_dim.sum(axis=2)
 
 
-@numba.jit("f8[:](f8[:,:],f8[:,:])", nopython=True, parallel=True)
-def calc_reconstruction_error_core(coord: np.ndarray, dist: np.ndarray) -> np.ndarray:
-    errors = np.zeros(len(coord), dtype=np.float64)
-    for ii in numba.prange(len(coord)):
+@numba.jit("f8[:](f8[:,:],f8[:,:],i8)", nopython=True, parallel=True)
+def calc_reconstruction_error_core(coord: np.ndarray, dist: np.ndarray, max_deg: int) -> np.ndarray:
+    errors = np.zeros(max_deg, dtype=np.float64)
+    for ii in numba.prange(max_deg):
         rec_dist = calc_dist_sq(coord[:, 0: ii + 1])
         errors[ii] = np.sum(np.square(dist - rec_dist))
     return np.sqrt(errors)
