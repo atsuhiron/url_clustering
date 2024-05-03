@@ -20,7 +20,7 @@ def caldera(x: np.ndarray, sigma: float, mean: np.ndarray, shift: float) -> floa
     assert x.shape[1] == mean.shape[1], f"Invalid ndarray shape of mean: {mean.shape}"
 
     r = np.linalg.norm(x - mean, axis=1)
-    val = np.squeeze(ss.norm.pdf(r - shift, scale=sigma, loc=0))
+    val = sigma * np.squeeze(ss.norm.pdf(r - shift, scale=sigma, loc=0))
     if val.shape == (1,):
         return val[0]
     return val
@@ -54,11 +54,27 @@ def complex_caldera_enclosure(sigma_arr: np.ndarray, mean_arr: np.ndarray, shift
     return closure
 
 
+def xzip(*ndarrays) -> np.ndarray:
+    flattens = [x.flatten() for x in ndarrays]
+    return np.c_[*flattens]
+
+
 if __name__ == "__main__":
-    xx, yy = np.meshgrid(np.linspace(-5, 5, 101), np.linspace(-5, 5, 101))
-    arr = np.zeros((101 ** 2, 2))
+    import matplotlib.pyplot as plt
+
+    ccf = complex_caldera_enclosure(
+        sigma_arr=np.array([0.3, 0.9, 2.2]),
+        mean_arr=np.array([[-3, -3], [2.2, 1.6], [0.4, -0.2]]),
+        shift_arr=np.array([1.0, 2.0, 2.5])
+    )
+
+    size = 101
+    xx, yy = np.meshgrid(np.linspace(-5, 5, size), np.linspace(-5, 5, size))
+    arr = np.zeros((size ** 2, 2))
     for ii, (_x, _y) in enumerate(zip(xx.flatten(), yy.flatten())):
         arr[ii, 0] = _x
         arr[ii, 1] = _y
 
-    ret = caldera(arr, 1.1, np.array([0, 0]), 2.0)
+    distribution = ccf(xzip(xx, yy)).reshape((size, size))
+    plt.imshow(distribution)
+    plt.show()

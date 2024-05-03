@@ -19,8 +19,8 @@ class ParsedQueries:
     def __len__(self) -> int:
         return len(self.summary)
 
-    def get_total_dist(self) -> TotalDist:
-        return TotalDist(self.total_dist)
+    def get_total_dist(self, total_dist: TotalDist | None = None) -> TotalDist:
+        return TotalDist(self.total_dist, total_dist.dist)
 
     def add_query(self, query: dict[ParamInfo, str], strict_mode: bool = False):
         # 新規パラメータが無いか確認
@@ -46,6 +46,8 @@ class ParsedQueries:
             none_fill_sample = sp_info.create_none_fill_samples(len(self._queries))
             dist_arr_1d = ParsedQueries._calc_paramwise_dist_core(sp_info.p_type, none_fill_sample, [param_value])
             sp_info.dist_arr = self.attach_arr_to_mat(sp_info.dist_arr, np.squeeze(dist_arr_1d))
+
+        self.total_dist = self.calc_total_dist(self.summary, len(self._queries))
 
     @staticmethod
     def create_summary(queries: list[dict[ParamInfo, str]], query_size: int) -> tuple[list[SummarisedParamInfo], set[ParamInfo]]:
