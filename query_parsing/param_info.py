@@ -1,5 +1,6 @@
 from __future__ import annotations
 import dataclasses
+import copy
 
 from query_parsing.param_type import ParamType
 
@@ -39,6 +40,25 @@ class SummarisedParamInfo:
         for idx, sample in zip(self.non_null_indices, self.samples):
             nfs[idx] = sample
         return nfs
+
+    def create_param_info(self) -> ParamInfo:
+        # p_type は ParamInfo の同値判定に使われないので本当はなんでもよい
+        return ParamInfo(self.key, self.p_type, self.duplication_index)
+
+    def update_by_new_query(self, new_sample: str | None):
+        self.count += 1
+
+        if new_sample is None:
+            # 新しいクエリにこのパラメータがなかった場合、カウントだけインクリメントしておしまい
+            return
+
+        new_samples = copy.deepcopy(self.samples)
+        new_samples.append(new_sample)
+        self.samples = new_samples
+
+        new_nni = copy.deepcopy(self.non_null_indices)
+        new_nni.add(self.count)
+        self.non_null_indices = new_nni
 
     @staticmethod
     def from_p_info(p_info: ParamInfo, count: int, p_type: ParamType, samples: list[str],
