@@ -20,7 +20,7 @@ class ParsedQueries:
         return len(self.summary)
 
     def get_total_dist(self, total_dist: TotalDist | None = None) -> TotalDist:
-        return TotalDist(self.total_dist, total_dist.dist)
+        return TotalDist(self.total_dist, total_dist.dist, total_dist.old_coord)
 
     def add_query(self, query: dict[ParamInfo, str], strict_mode: bool = False):
         # 新規パラメータが無いか確認

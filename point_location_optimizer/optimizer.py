@@ -59,6 +59,25 @@ def xzip(*ndarrays) -> np.ndarray:
     return np.c_[*flattens]
 
 
+def optimize_new_location(old_coord: np.ndarray, additional_dist: np.ndarray) -> np.ndarray:
+    """
+    `old_coord` で記述された座標点それぞれに対して、距離が `additional_dist` の座標点を求める。
+
+    Parameters
+    ----------
+    old_coord : np.ndarray
+        shape は `(N, M)` で N 個の座標点がそれぞれ M 次元の成分を持っている。
+
+    additional_dist : np.ndarray
+        shape は `(N,)` で N 個の座標点からの距離を表した配列。
+
+    Returns
+    -------
+    new_coord : np.ndarray
+        shape は `(M,)` で `additional_dist` で与えられた情報を元に新しい座標点を計算して返す。
+    """
+
+
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
