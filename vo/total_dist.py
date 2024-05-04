@@ -24,7 +24,7 @@ class TotalDist:
 
     def reconstruct_coord(self) -> ReconstCoord:
         if self.old_dist is None or self.old_coord is None:
-            self.old_coord, order = url_locater.locate_eigh(self.dist)
+            self.coord, order = url_locater.locate_eigh(self.dist)
             return ReconstCoord(self.coord, order, self.dist)
 
         # TODO: ここに付加処理をを実装
