@@ -8,6 +8,7 @@ from query_parsing.param_type import ParamType
 from query_parsing.param_info import ParamInfo
 from query_parsing.param_info import SummarisedParamInfo
 from vo.total_dist import TotalDist
+from vo.reconst_coord import ReconstCoord
 
 
 class ParsedQueries:
@@ -19,8 +20,8 @@ class ParsedQueries:
     def __len__(self) -> int:
         return len(self.summary)
 
-    def get_total_dist(self, total_dist: TotalDist | None = None) -> TotalDist:
-        return TotalDist(self.total_dist, total_dist.dist, total_dist.old_coord)
+    def get_total_dist(self, old_reconst: ReconstCoord | None = None) -> TotalDist:
+        return TotalDist(self.total_dist, old_reconst)
 
     def add_query(self, query: dict[ParamInfo, str], strict_mode: bool = False):
         # 新規パラメータが無いか確認
@@ -47,6 +48,7 @@ class ParsedQueries:
             dist_arr_1d = ParsedQueries._calc_paramwise_dist_core(sp_info.p_type, none_fill_sample, [param_value])
             sp_info.dist_arr = self.attach_arr_to_mat(sp_info.dist_arr, np.squeeze(dist_arr_1d))
 
+        self._queries.append(query)
         self.total_dist = self.calc_total_dist(self.summary, len(self._queries))
 
     @staticmethod

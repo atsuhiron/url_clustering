@@ -1,6 +1,7 @@
 from typing import Callable
 
 import scipy.stats as ss
+import scipy.optimize as so
 import numpy as np
 
 
@@ -20,7 +21,7 @@ def caldera(x: np.ndarray, sigma: float, mean: np.ndarray, shift: float) -> floa
     assert x.shape[1] == mean.shape[1], f"Invalid ndarray shape of mean: {mean.shape}"
 
     r = np.linalg.norm(x - mean, axis=1)
-    val = sigma * np.squeeze(ss.norm.pdf(r - shift, scale=sigma, loc=0))
+    val = -1 * sigma * np.squeeze(ss.norm.pdf(r - shift, scale=sigma, loc=0))
     if val.shape == (1,):
         return val[0]
     return val
@@ -59,6 +60,11 @@ def xzip(*ndarrays) -> np.ndarray:
     return np.c_[*flattens]
 
 
+def _init_point_locator(old_coord: np.ndarray) -> np.ndarray:
+    index = np.random.randint(0, len(old_coord) - 1)
+    return old_coord[index]
+
+
 def optimize_new_location(old_coord: np.ndarray, additional_dist: np.ndarray) -> np.ndarray:
     """
     `old_coord` で記述された座標点それぞれに対して、距離が `additional_dist` の座標点を求める。
@@ -76,6 +82,21 @@ def optimize_new_location(old_coord: np.ndarray, additional_dist: np.ndarray) ->
     new_coord : np.ndarray
         shape は `(M,)` で `additional_dist` で与えられた情報を元に新しい座標点を計算して返す。
     """
+    assert old_coord.ndim == 2
+    assert additional_dist.ndim == 1
+    assert len(old_coord) == len(additional_dist)
+
+    peak_coef = 1.0
+    ccf = complex_caldera_enclosure(
+        sigma_arr=additional_dist * peak_coef,  # この設定には議論の余地がある
+        mean_arr=old_coord,
+        shift_arr=additional_dist
+    )
+
+    # TODO: もうちょい凝った手法にする (ex. 最初は大きい sigma をだんだん小さくして局所解にはまらないようにする。複数の初期値から始める。)
+    init_x = _init_point_locator(old_coord)
+    opt_res = so.minimize(ccf, init_x)
+    return opt_res.x
 
 
 if __name__ == "__main__":
@@ -95,5 +116,12 @@ if __name__ == "__main__":
         arr[ii, 1] = _y
 
     distribution = ccf(xzip(xx, yy)).reshape((size, size))
-    plt.imshow(distribution)
+
+    poi = np.array([2.5, -0])
+    # soret = so.least_squares(ccf, poi, verbose=2)
+    soret = so.minimize(ccf, poi)
+    print(soret)
+
+    plt.pcolor(xx, yy, distribution)
+    plt.plot([soret.x[0]], [soret.x[1]], "o")
     plt.show()

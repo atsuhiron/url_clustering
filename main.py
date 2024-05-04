@@ -60,13 +60,17 @@ if __name__ == "__main__":
 
     new_q = fq_gen.generate(2)
     new_parsed = parser.to_dict(new_q)
-    pq.add_query(new_parsed[0])
 
     dist = pq.get_total_dist()
     graphix.draw_dist_mat(dist)
 
     coord = dist.reconstruct_coord()
+
+    pq.add_query(new_parsed[0])
+    new_dist = pq.get_total_dist(coord)
+    new_coord = new_dist.reconstruct_coord()
     graphix.draw_coord(coord)
+    graphix.draw_coord(new_coord)
 
     errors = coord.calc_reconstruction_error()
     graphix.draw_reconstruction_error(errors)
