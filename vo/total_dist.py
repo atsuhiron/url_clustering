@@ -2,7 +2,6 @@ import numpy as np
 
 import url_locater
 from vo.reconst_coord import ReconstCoord
-import util.algrithm as alg
 import point_location_optimizer.optimizer as opt
 
 
@@ -36,7 +35,7 @@ class TotalDist:
             return False
         return self.coord.shape[0] == self.coord.shape[1]
 
-    def reconstruct_coord(self) -> ReconstCoord:
+    def reconstruct_coord(self, use_jac: bool = True) -> ReconstCoord:
         if self.old_dist is None or self.old_coord is None:
             self.coord, order = url_locater.locate_eigh(self.dist)
             return ReconstCoord(self.coord, order, self.dist)
@@ -48,7 +47,7 @@ class TotalDist:
 
         # 追加分の座標を推定
         for ni in range(additional_deg):
-            additional_coord[ni] = opt.optimize_new_location(self.old_coord, additional_dist[ni])
+            additional_coord[ni] = opt.optimize_new_location(self.old_coord, additional_dist[ni], use_jac)
 
         # coord の更新
         self.coord = np.zeros((old_deg + additional_deg, old_deg))
