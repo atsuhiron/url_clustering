@@ -5,6 +5,9 @@ import scipy.optimize as so
 import numpy as np
 
 
+EPS = np.finfo(np.float64).eps
+
+
 def caldera(x: np.ndarray, sigma: float, mean: np.ndarray, shift: float) -> float | np.ndarray:
     if isinstance(x, float) or isinstance(x, int):
         x = np.array([[x]])
@@ -20,7 +23,7 @@ def caldera(x: np.ndarray, sigma: float, mean: np.ndarray, shift: float) -> floa
     mean = mean[np.newaxis, :]
     assert x.shape[1] == mean.shape[1], f"Invalid ndarray shape of mean: {mean.shape}"
 
-    r = np.linalg.norm(x - mean, axis=1)
+    r = np.linalg.norm(x - mean, axis=1) + EPS
     val = -1 * sigma * np.squeeze(ss.norm.pdf(r - shift, scale=sigma, loc=0))
     if val.shape == (1,):
         return val[0]
@@ -41,7 +44,7 @@ def d_caldera(x: np.ndarray, sigma: float, mean: np.ndarray, shift: float) -> np
         raise TypeError
     mean = mean[np.newaxis, :]
     assert x.shape[1] == mean.shape[1], f"Invalid ndarray shape of mean: {mean.shape}"
-    r = np.linalg.norm(x - mean, axis=1)[:, np.newaxis]
+    r = np.linalg.norm(x - mean, axis=1)[:, np.newaxis] + EPS
     val = sigma * ss.norm.pdf(r - shift, scale=sigma, loc=0)
     d_coef = 2 * (r - shift) / sigma / sigma / r * x
     return np.squeeze(val * d_coef)
@@ -97,7 +100,7 @@ def _init_point_locator(old_coord: np.ndarray) -> np.ndarray:
     return old_coord[index]
 
 
-def optimize_new_location(old_coord: np.ndarray, additional_dist: np.ndarray, use_jac: bool) -> np.ndarray:
+def optimize_new_location(old_coord: np.ndarray, additional_dist: np.ndarray, use_jac: bool, method: str | None = None) -> np.ndarray:
     """
     `old_coord` で記述された座標点それぞれに対して、距離が `additional_dist` の座標点を求める。
 
@@ -110,8 +113,11 @@ def optimize_new_location(old_coord: np.ndarray, additional_dist: np.ndarray, us
         shape は `(N,)` で N 個の座標点からの距離を表した配列。
 
     use_jac : bool
-        最適化時にヤコビアンを使うかどうか。True の場合、ヤコビアンを使い、最適化メソッドは BFGS を利用する。
-        False の場合は SLSQP を使用する。
+        最適化時にヤコビアンを使うかどうか。
+
+    method : str
+        最適化メソッド。デフォルトでは `use_jac` が True の場合は SLSQP を利用する。
+        False の場合は L-BFGS-B を使用する。
 
     Returns
     -------
@@ -131,7 +137,14 @@ def optimize_new_location(old_coord: np.ndarray, additional_dist: np.ndarray, us
 
     # TODO: もうちょい凝った手法にする (ex. 最初は大きい sigma をだんだん小さくして局所解にはまらないようにする。複数の初期値から始める。)
     init_x = _init_point_locator(old_coord)
-    opt_res = so.minimize(ccf, init_x, jac=d_ccf, method="BFGS")
+    if use_jac:
+        if method is None:
+            method = "SLSQP"
+        opt_res = so.minimize(ccf, init_x, jac=d_ccf, method=method)
+    else:
+        if method is None:
+            method = "L-BFGS-B"
+        opt_res = so.minimize(ccf, init_x, method=method)
     return opt_res.x
 
 

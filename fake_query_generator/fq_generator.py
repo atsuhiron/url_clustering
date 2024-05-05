@@ -9,7 +9,7 @@ class FQGenerator:
         assert len(clusters) > 0
         self._cluster = clusters
 
-    def generate(self, num: int) -> list[str]:
+    def generate(self, num: int, verbose: bool = True) -> list[str]:
         if len(self._cluster) == 1:
             c_indices = np.zeros(num, dtype=np.int32)
         else:
@@ -21,7 +21,7 @@ class FQGenerator:
                 c_indices[random > cumulative_ratio[ci]] = ci + 1
 
         fq_list = []
-        for ci in tqdm(c_indices, desc="Gen fake query"):
+        for ci in tqdm(c_indices, desc="Gen fake query", disable=not verbose):
             fq_list.append(self._cluster[ci].generate())
         return fq_list
 

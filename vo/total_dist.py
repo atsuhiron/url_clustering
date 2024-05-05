@@ -35,7 +35,7 @@ class TotalDist:
             return False
         return self.coord.shape[0] == self.coord.shape[1]
 
-    def reconstruct_coord(self, use_jac: bool = True) -> ReconstCoord:
+    def reconstruct_coord(self, method: str | None = None, use_jac: bool = True) -> ReconstCoord:
         if self.old_dist is None or self.old_coord is None:
             self.coord, order = url_locater.locate_eigh(self.dist)
             return ReconstCoord(self.coord, order, self.dist)
@@ -47,7 +47,7 @@ class TotalDist:
 
         # 追加分の座標を推定
         for ni in range(additional_deg):
-            additional_coord[ni] = opt.optimize_new_location(self.old_coord, additional_dist[ni], use_jac)
+            additional_coord[ni] = opt.optimize_new_location(self.old_coord, additional_dist[ni], use_jac, method)
 
         # coord の更新
         self.coord = np.zeros((old_deg + additional_deg, old_deg))
