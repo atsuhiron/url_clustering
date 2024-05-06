@@ -46,7 +46,7 @@ def d_caldera(x: np.ndarray, sigma: float, mean: np.ndarray, shift: float) -> np
     assert x.shape[1] == mean.shape[1], f"Invalid ndarray shape of mean: {mean.shape}"
     r = np.linalg.norm(x - mean, axis=1)[:, np.newaxis] + EPS
     val = sigma * ss.norm.pdf(r - shift, scale=sigma, loc=0)
-    d_coef = -2 * (r - shift) / sigma / sigma / r * x
+    d_coef = 2 * (r - shift) / sigma / sigma / r * x
     return np.squeeze(val * d_coef)
 
 
