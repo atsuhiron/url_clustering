@@ -46,7 +46,7 @@ def d_caldera(x: np.ndarray, sigma: float, mean: np.ndarray, shift: float) -> np
     assert x.shape[1] == mean.shape[1], f"Invalid ndarray shape of mean: {mean.shape}"
     r = np.linalg.norm(x - mean, axis=1)[:, np.newaxis] + EPS
     val = sigma * ss.norm.pdf(r - shift, scale=sigma, loc=0)
-    d_coef = 2 * (r - shift) / sigma / sigma / r * x
+    d_coef = -2 * (r - shift) / sigma / sigma / r * x
     return np.squeeze(val * d_coef)
 
 
@@ -55,8 +55,8 @@ def complex_caldera_enclosure(sigma_arr: np.ndarray, mean_arr: np.ndarray, shift
     最適化する目的関数を生成するエンクロージャ。
     N個のカルデラ関数を内包している。
 
-    f_i(\vec{x}) = \frac{1}{\sqrt{2\pi}} \exp \right[ \frac{(|\vec{x} - \vec{m_i}| - d)^2}{\sigma_i^2} \left]
-    \frac{\partial f_i(\vec{x})}{\partial x_j} = \frac{2(|\vec{x} - \vec{m_i}| - d)x_j}{\sigma_i^2|\vec{x} - \vec{m}|} f(\vec{x})
+    f_i(\vec{x}) = \frac{1}{\sqrt{2\pi}} \exp \right[ -\frac{(|\vec{x} - \vec{m_i}| - d)^2}{\sigma_i^2} \left]
+    \frac{\partial f_i(\vec{x})}{\partial x_j} = -\frac{2(|\vec{x} - \vec{m_i}| - d)x_j}{\sigma_i^2|\vec{x} - \vec{m}|} f(\vec{x})
 
     Parameters
     ----------
