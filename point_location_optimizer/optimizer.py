@@ -165,10 +165,18 @@ if __name__ == "__main__":
         arr[ii, 1] = _y
 
     distribution = ccf(xzip(xx, yy)).reshape((size, size))
+    _d_distribution = d_ccf(xzip(xx, yy))
+    d_distr_x = _d_distribution[:, 0].reshape((size, size))
+    d_distr_y = _d_distribution[:, 1].reshape((size, size))
 
     poi = np.array([2.5, -0])
     soret = so.minimize(ccf, poi, jac=d_ccf, method="BFGS")
     print(soret)
     plt.pcolor(xx, yy, distribution)
     plt.plot([soret.x[0]], [soret.x[1]], "o")
+    plt.show()
+
+    plt.plot(xx[0], distribution[int(soret.x[1])], label="f(x)")
+    plt.plot(xx[0], d_distr_x[int(soret.x[1])], label="df(x)/dx)")
+    plt.legend()
     plt.show()
