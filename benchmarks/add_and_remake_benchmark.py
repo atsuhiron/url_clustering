@@ -71,8 +71,8 @@ def plot(sizes: np.ndarray, means: np.ndarray, stds: np.ndarray):
         apx_x = np.logspace(np.log2(sizes[0]), np.log2(sizes[-1]), 128, base=2)
         apx_y = _apx_func(apx_x, *opt_res[0])
         apx_lab = (f"a={_float_str(float(opt_res[0][0]))}, "
-                   f"b={_float_str(float(opt_res[0][0]))}, "
-                   f"c={_float_str(float(opt_res[0][0]))} "
+                   f"b={_float_str(float(opt_res[0][1]))}, "
+                   f"c={_float_str(float(opt_res[0][2]))} "
                    f"{labels[pi]:12s}")
         plt.errorbar(sizes, means[pi], stds[pi], fmt="o", capsize=2, label=labels[pi])
         plt.plot(apx_x, apx_y, color=matplotlib.colormaps.get_cmap("tab10")(pi), label=apx_lab)
@@ -116,8 +116,7 @@ if __name__ == "__main__":
         common_url = fq_gen.generate(int(sizes[ii]), verbose=False)
 
         gla_mean[0, ii], gla_stad[0, ii] = proc_remake(trials, common_url)
-        if len(common_url) <= 512:
-            gla_mean[1, ii], gla_stad[1, ii] = proc_add(trials, common_url, False)
+        gla_mean[1, ii], gla_stad[1, ii] = proc_add(trials, common_url, False)
         gla_mean[2, ii], gla_stad[2, ii] = proc_add(trials, common_url, True)
         print("")
 
