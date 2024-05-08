@@ -1,3 +1,6 @@
+from typing import Callable
+from typing import Type
+import abc
 import datetime
 import time
 
@@ -51,8 +54,51 @@ def proc_add(trial_num: int, urls: list[str], use_jac: bool) -> tuple[float, flo
     return float(log_arr.mean()), float(log_arr.std())
 
 
-def _apx_func(x: np.ndarray, a: float, b: float, c: np.ndarray) -> np.ndarray:
-    return a * np.power(x, b) + c
+class ApxFuncBase(metaclass=abc.ABCMeta):
+    @staticmethod
+    @abc.abstractmethod
+    def f(self, *args):
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def get_param_info() -> tuple[str, ...]:
+        pass
+
+    @staticmethod
+    @abc.abstractmethod
+    def get_p0() -> list[float]:
+        pass
+
+
+class ApxFuncPowerOffset(ApxFuncBase):
+    @staticmethod
+    def f(*args):
+        x, a, b, c = args
+        return a * np.power(x, b) + c
+
+    @staticmethod
+    def get_param_info() -> tuple[str, ...]:
+        return "a", "b", "c"
+
+    @staticmethod
+    def get_p0() -> list[float]:
+        return [0.1, 1.9, 0.0]
+
+
+class ApxFuncPower(ApxFuncBase):
+    @staticmethod
+    def f(*args):
+        x, a, b = args
+        return a * np.power(x, b)
+
+    @staticmethod
+    def get_param_info() -> tuple[str, ...]:
+        return "a", "b"
+
+    @staticmethod
+    def get_p0() -> list[float]:
+        return [0.1, 1.9]
 
 
 def _float_str(val: float) -> str:
@@ -61,19 +107,19 @@ def _float_str(val: float) -> str:
     return f"{val:.4f}"
 
 
-def plot(sizes: np.ndarray, means: np.ndarray, stds: np.ndarray):
+def plot(sizes: np.ndarray, means: np.ndarray, stds: np.ndarray, apx: Type[ApxFuncBase]):
     labels = ["Remake", "Add", "Add use_jac"]
     for pi in range(len(labels)):
         is_not_nan = np.logical_not(np.isnan(means[pi]))
         x = sizes[is_not_nan]
         y = means[pi, is_not_nan]
-        opt_res = so.curve_fit(_apx_func, x, y, [1.0, 1.9, 0.0])
+        opt_res = so.curve_fit(apx.f, x, y, apx.get_p0())
         apx_x = np.logspace(np.log2(sizes[0]), np.log2(sizes[-1]), 128, base=2)
-        apx_y = _apx_func(apx_x, *opt_res[0])
-        apx_lab = (f"a={_float_str(float(opt_res[0][0]))}, "
-                   f"b={_float_str(float(opt_res[0][1]))}, "
-                   f"c={_float_str(float(opt_res[0][2]))} "
-                   f"{labels[pi]:12s}")
+        apx_y = apx.f(apx_x, *opt_res[0])
+        apx_lab = ""
+        for p_name, p_val in zip(apx.get_param_info(), opt_res[0]):
+            apx_lab += f"{p_name}={_float_str(float(p_val))}, "
+        apx_lab += f"{labels[pi]:12s}"
         plt.errorbar(sizes, means[pi], stds[pi], fmt="o", capsize=2, label=labels[pi])
         plt.plot(apx_x, apx_y, color=matplotlib.colormaps.get_cmap("tab10")(pi), label=apx_lab)
 
@@ -121,4 +167,8 @@ if __name__ == "__main__":
         print("")
 
     print(datetime.datetime.now())
-    plot(sizes, gla_mean, gla_stad)
+    try:
+        plot(sizes, gla_mean, gla_stad, ApxFuncPowerOffset)
+    except RuntimeError:
+        plt.clf()
+        plot(sizes, gla_mean, gla_stad, ApxFuncPower)
