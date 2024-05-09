@@ -47,12 +47,13 @@ def caldera(x: np.ndarray, sigma: float, mean: np.ndarray, shift: float) -> floa
     return val
 
 
-@numba.njit("f8(f8[:], f8[:], f8[:,:], f8[:])")
+@numba.njit("f8(f8[:], f8[:], f8[:,:], f8[:])", parallel=True)
 def sum_caldera(x: np.ndarray, sigma_arr: np.ndarray, mean_arr: np.ndarray, shift_arr: np.ndarray) -> float:
-    val = float(0)
-    for sigma, mean, shift in zip(sigma_arr, mean_arr, shift_arr):
-        val += caldera(x, sigma, mean, shift)
-    return val
+    size = mean_arr.shape[0]
+    d_vec = np.zeros(size, dtype=np.float64)
+    for ii in numba.prange(size):
+        d_vec[ii] = caldera(x, sigma_arr[ii], mean_arr[ii], shift_arr[ii])
+    return np.sum(d_vec)
 
 
 @numba.njit("f8[:](f8[:], f8, f8[:], f8)")
@@ -64,12 +65,13 @@ def d_caldera(x: np.ndarray, sigma: float, mean: np.ndarray, shift: float) -> fl
     return val * d_coef
 
 
-@numba.njit("f8[:](f8[:], f8[:], f8[:,:], f8[:])")
+@numba.njit("f8[:](f8[:], f8[:], f8[:,:], f8[:])", parallel=True)
 def sum_d_caldera(x: np.ndarray, sigma_arr: np.ndarray, mean_arr: np.ndarray, shift_arr: np.ndarray) -> np.ndarray:
-    d_vec = np.zeros(mean_arr.shape[1], dtype=np.float64)
-    for sigma, mean, shift in zip(sigma_arr, mean_arr, shift_arr):
-        d_vec += d_caldera(x, sigma, mean, shift)
-    return d_vec
+    size = mean_arr.shape[0]
+    d_vec = np.zeros((size, mean_arr.shape[1]), dtype=np.float64)
+    for ii in numba.prange(size):
+        d_vec[ii] = d_caldera(x, sigma_arr[ii], mean_arr[ii], shift_arr[ii])
+    return np.sum(d_vec, axis=0)
 
 
 def caldera_non_jit(x: np.ndarray, sigma: float, mean: np.ndarray, shift: float) -> float | np.ndarray:
@@ -131,9 +133,9 @@ if __name__ == "__main__":
         ret_c = caldera(random_2d_x[ri], float(random_sigma[ri]), np.array([0.0, 0.0]), 0.525)
         ret_dc = d_caldera(random_2d_x[ri], float(random_sigma[ri]), np.array([0.0, 0.0]), 0.525)
 
-    sigmas = np.array([0.3, 0.9, 2.2])
-    means = np.array([[-3, -3], [2.2, 1.6], [0.4, -0.2]])
-    shifts = np.array([1.0, 2.0, 2.5])
+    sigmas = np.random.random(1000)
+    means = np.random.random((1000, 2))
+    shifts = np.random.random(1000)
 
     print(sum_caldera(random_2d_x[0], sigmas, means, shifts))
     print(sum_d_caldera(random_2d_x[0], sigmas, means, shifts))
