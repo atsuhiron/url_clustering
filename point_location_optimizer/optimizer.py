@@ -1,56 +1,13 @@
 from typing import Callable
 
-import scipy.stats as ss
 import scipy.optimize as so
 import numpy as np
 
-
-EPS = np.finfo(np.float64).eps
-
-
-def caldera(x: np.ndarray, sigma: float, mean: np.ndarray, shift: float) -> float | np.ndarray:
-    if isinstance(x, float) or isinstance(x, int):
-        x = np.array([[x]])
-    elif isinstance(x, np.ndarray) and x.ndim == 1:
-        x = x[np.newaxis, :]
-    elif isinstance(x, np.ndarray) and x.ndim != 2:
-        assert False, f"Invalid ndarray shape of x: {x.shape}"
-
-    if isinstance(mean, float) or isinstance(mean, int):
-        mean = np.array([mean])
-    elif not isinstance(mean, np.ndarray):
-        raise TypeError
-    mean = mean[np.newaxis, :]
-    assert x.shape[1] == mean.shape[1], f"Invalid ndarray shape of mean: {mean.shape}"
-
-    r = np.linalg.norm(x - mean, axis=1) + EPS
-    val = -1 * sigma * np.squeeze(ss.norm.pdf(r - shift, scale=sigma, loc=0))
-    if val.shape == (1,):
-        return val[0]
-    return val
+from util import algrithm as alg
 
 
-def d_caldera(x: np.ndarray, sigma: float, mean: np.ndarray, shift: float) -> np.ndarray:
-    if isinstance(x, float) or isinstance(x, int):
-        x = np.array([[x]])
-    elif isinstance(x, np.ndarray) and x.ndim == 1:
-        x = x[np.newaxis, :]
-    elif isinstance(x, np.ndarray) and x.ndim != 2:
-        assert False, f"Invalid ndarray shape of x: {x.shape}"
-
-    if isinstance(mean, float) or isinstance(mean, int):
-        mean = np.array([mean])
-    elif not isinstance(mean, np.ndarray):
-        raise TypeError
-    mean = mean[np.newaxis, :]
-    assert x.shape[1] == mean.shape[1], f"Invalid ndarray shape of mean: {mean.shape}"
-    r = np.linalg.norm(x - mean, axis=1)[:, np.newaxis] + EPS
-    val = sigma * ss.norm.pdf(r - shift, scale=sigma, loc=0)
-    d_coef = 2 * (r - shift) / sigma / sigma / r * x
-    return np.squeeze(val * d_coef)
-
-
-def complex_caldera_enclosure(sigma_arr: np.ndarray, mean_arr: np.ndarray, shift_arr: np.ndarray) -> tuple[Callable, Callable]:
+def complex_caldera_enclosure(sigma_arr: np.ndarray, mean_arr: np.ndarray, shift_arr: np.ndarray,
+                              interpret_x_as_arr: bool = False) -> tuple[Callable, Callable]:
     """
     最適化する目的関数を生成するエンクロージャ。
     N個のカルデラ関数を内包している。
@@ -67,26 +24,42 @@ def complex_caldera_enclosure(sigma_arr: np.ndarray, mean_arr: np.ndarray, shift
         ただし `M` はパラメータ数と同じであることが多いので、ほとんどの場合 `M=N` 。
     shift_arr : np.ndarray
         中心から山までの距離を表す。shape は `(N,)`。
+    interpret_x_as_arr : bool
 
     Returns
     -------
     functions : tuple[Callable, Callable]
         目的関数とそのヤコビアン。
     """
+    assert sigma_arr.ndim == 1
+    assert mean_arr.ndim == 2
+    assert shift_arr.ndim == 1
+    assert len(sigma_arr) == len(mean_arr)
+    assert len(sigma_arr) == len(shift_arr)
+
+    if interpret_x_as_arr:
+        def closure(x: np.ndarray) -> float:
+            val = float(0)
+            for sigma, mean, shift in zip(sigma_arr, mean_arr, shift_arr):
+                val += alg.caldera_non_jit(x, sigma, mean, shift)
+            return val
+
+        def d_closure(x: np.ndarray) -> np.ndarray:
+            if x.ndim == 2:
+                d_vec = np.zeros((len(x), mean_arr.shape[1]))
+            else:
+                d_vec = np.zeros(mean_arr.shape[1])
+            for sigma, mean, shift in zip(sigma_arr, mean_arr, shift_arr):
+                d_vec += alg.d_caldera_non_jit(x, sigma, mean, shift)
+            return d_vec
+
+        return closure, d_closure
+
     def closure(x: np.ndarray) -> float:
-        val = float(0)
-        for sigma, mean, shift in zip(sigma_arr, mean_arr, shift_arr):
-            val += caldera(x, sigma, mean, shift)
-        return val
+        return alg.sum_caldera(x, sigma_arr, mean_arr, shift_arr)
 
     def d_closure(x: np.ndarray) -> np.ndarray:
-        if x.ndim == 2:
-            d_vec = np.zeros((len(x), mean_arr.shape[1]))
-        else:
-            d_vec = np.zeros(mean_arr.shape[1])
-        for sigma, mean, shift in zip(sigma_arr, mean_arr, shift_arr):
-            d_vec += d_caldera(x, sigma, mean, shift)
-        return d_vec
+        return alg.sum_d_caldera(x, sigma_arr, mean_arr, shift_arr)
     return closure, d_closure
 
 
@@ -151,10 +124,18 @@ def optimize_new_location(old_coord: np.ndarray, additional_dist: np.ndarray, us
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
+    ccf_nj, d_ccf_nj = complex_caldera_enclosure(
+        sigma_arr=np.array([0.3, 0.9, 2.2]),
+        mean_arr=np.array([[-3, -3], [2.2, 1.6], [0.4, -0.2]]),
+        shift_arr=np.array([1.0, 2.0, 2.5]),
+        interpret_x_as_arr=True
+    )
+
     ccf, d_ccf = complex_caldera_enclosure(
         sigma_arr=np.array([0.3, 0.9, 2.2]),
         mean_arr=np.array([[-3, -3], [2.2, 1.6], [0.4, -0.2]]),
-        shift_arr=np.array([1.0, 2.0, 2.5])
+        shift_arr=np.array([1.0, 2.0, 2.5]),
+        interpret_x_as_arr=False
     )
 
     size = 101
@@ -164,8 +145,8 @@ if __name__ == "__main__":
         arr[ii, 0] = _x
         arr[ii, 1] = _y
 
-    distribution = ccf(xzip(xx, yy)).reshape((size, size))
-    _d_distribution = d_ccf(xzip(xx, yy))
+    distribution = ccf_nj(xzip(xx, yy)).reshape((size, size))
+    _d_distribution = d_ccf_nj(xzip(xx, yy))
     d_distr_x = _d_distribution[:, 0].reshape((size, size))
     d_distr_y = _d_distribution[:, 1].reshape((size, size))
 
