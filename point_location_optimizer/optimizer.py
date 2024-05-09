@@ -54,6 +54,7 @@ def complex_caldera_enclosure(sigma_arr: np.ndarray, mean_arr: np.ndarray, shift
             return d_vec
 
         return closure, d_closure
+
     def closure(x: np.ndarray) -> float:
         return alg.sum_caldera(x, sigma_arr, mean_arr, shift_arr)
 

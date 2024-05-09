@@ -165,6 +165,8 @@ if __name__ == "__main__":
         gla_mean[2, ii], gla_stad[2, ii] = proc_add(trials, common_url, True)
         print("")
 
+    np.save("benchmarks/temp_mean.npy", gla_mean)
+    np.save("benchmarks/temp_stad.npy", gla_stad)
     print(datetime.datetime.now())
     try:
         plot(sizes, gla_mean, gla_stad, ApxFuncPowerOffset)
