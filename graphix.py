@@ -41,3 +41,9 @@ def draw_coord_for_sample(coord_1: np.ndarray, coord_2: np.ndarray, original: np
     plt.plot(original[:, 0], original[:, 1], "o", label="original")
     plt.legend()
     plt.show()
+
+
+def draw_distance_order(ordered_distance: np.ndarray):
+    for line in ordered_distance:
+        plt.plot(line)
+    plt.show()

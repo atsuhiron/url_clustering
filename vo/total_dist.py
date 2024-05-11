@@ -55,3 +55,12 @@ class TotalDist:
         self.coord[old_deg:] = additional_coord
 
         return ReconstCoord(self.coord, self.old_order, self.dist)
+
+    def get_distance_order(self, indices_or_random_num: list[int] | np.ndarray | int = 10) -> np.ndarray:
+        if isinstance(indices_or_random_num, int):
+            indices_or_random_num = np.random.randint(0, len(self), size=indices_or_random_num)
+        if isinstance(indices_or_random_num, list):
+            indices_or_random_num = np.array(indices_or_random_num)
+
+        extracted = self.dist[indices_or_random_num]
+        return np.sort(extracted, axis=1)

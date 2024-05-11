@@ -42,7 +42,7 @@ if __name__ == "__main__":
                 )
             ]
         )
-        urls = fq_gen.generate(20)
+        urls = fq_gen.generate(200)
     else:
         if file_name.endswith("csv"):
             assert args.column is not None, "Input column name"
@@ -58,19 +58,21 @@ if __name__ == "__main__":
     parsed = parser.to_dict(urls)
     pq = parsed_queries.ParsedQueries(parsed)
 
-    new_q = fq_gen.generate(2)
-    new_parsed = parser.to_dict(new_q)
+    # new_q = fq_gen.generate(2)
+    # new_parsed = parser.to_dict(new_q)
 
     dist = pq.get_total_dist()
-    graphix.draw_dist_mat(dist)
+    # graphix.draw_dist_mat(dist)
 
     coord = dist.reconstruct_coord()
 
-    pq.add_query(new_parsed[0])
-    new_dist = pq.get_total_dist(coord)
-    new_coord = new_dist.reconstruct_coord()
+    # pq.add_query(new_parsed[0])
+    # new_dist = pq.get_total_dist(coord)
+    # new_coord = new_dist.reconstruct_coord()
     graphix.draw_coord(coord)
-    graphix.draw_coord(new_coord)
+    # graphix.draw_coord(new_coord)
 
-    errors = coord.calc_reconstruction_error()
-    graphix.draw_reconstruction_error(errors)
+    # errors = coord.calc_reconstruction_error()
+    # graphix.draw_reconstruction_error(errors)
+
+    graphix.draw_distance_order(dist.get_distance_order())
