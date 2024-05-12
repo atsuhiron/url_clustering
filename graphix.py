@@ -43,7 +43,24 @@ def draw_coord_for_sample(coord_1: np.ndarray, coord_2: np.ndarray, original: np
     plt.show()
 
 
-def draw_distance_order(ordered_distance: np.ndarray):
+def draw_distance_order(ordered_distance: np.ndarray, omit_first: bool = True):
+    if omit_first:
+        ordered_distance = ordered_distance[1:]
+
     for line in ordered_distance:
         plt.plot(line)
+    plt.show()
+
+
+def draw_distance_order_full(ordered_distance_mean: np.ndarray, ordered_distance_std: np.ndarray, omit_first: bool = True):
+    if omit_first:
+        ordered_distance_mean = ordered_distance_mean[1:]
+        ordered_distance_std = ordered_distance_std[1:]
+
+    x = np.arange(len(ordered_distance_mean))
+    plt.fill_between(x,
+                     ordered_distance_mean + ordered_distance_std,
+                     ordered_distance_mean - ordered_distance_std,
+                     alpha=0.5)
+    plt.plot(x, ordered_distance_mean)
     plt.show()

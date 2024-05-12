@@ -64,3 +64,7 @@ class TotalDist:
 
         extracted = self.dist[indices_or_random_num]
         return np.sort(extracted, axis=1)
+
+    def get_distance_order_full(self) -> tuple[np.ndarray, np.ndarray]:
+        sorted_dist = np.sort(self.dist, axis=1)
+        return np.mean(sorted_dist, axis=0), np.std(sorted_dist, axis=0)

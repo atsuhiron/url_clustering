@@ -75,4 +75,4 @@ if __name__ == "__main__":
     # errors = coord.calc_reconstruction_error()
     # graphix.draw_reconstruction_error(errors)
 
-    graphix.draw_distance_order(dist.get_distance_order())
+    graphix.draw_distance_order_full(*dist.get_distance_order_full())
