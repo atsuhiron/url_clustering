@@ -57,10 +57,18 @@ def draw_distance_order_full(ordered_distance_mean: np.ndarray, ordered_distance
         ordered_distance_mean = ordered_distance_mean[1:]
         ordered_distance_std = ordered_distance_std[1:]
 
-    x = np.arange(len(ordered_distance_mean))
+    arr_size = len(ordered_distance_mean)
+    x = np.arange(arr_size)
+    plt.subplot(2, 1, 1)
+    plt.title("Ordered mean distance")
     plt.fill_between(x,
                      ordered_distance_mean + ordered_distance_std,
                      ordered_distance_mean - ordered_distance_std,
                      alpha=0.5)
     plt.plot(x, ordered_distance_mean)
+
+    plt.subplot(2, 1, 2)
+    plt.title("Diff ordered mean distance")
+    d_mean = ordered_distance_mean[1:] - ordered_distance_mean[:-1]
+    plt.plot(np.arange(arr_size - 1), d_mean)
     plt.show()
