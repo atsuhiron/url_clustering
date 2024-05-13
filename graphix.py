@@ -71,4 +71,6 @@ def draw_distance_order_full(ordered_distance_mean: np.ndarray, ordered_distance
     plt.title("Diff ordered mean distance")
     d_mean = ordered_distance_mean[1:] - ordered_distance_mean[:-1]
     plt.plot(np.arange(arr_size - 1), d_mean)
+
+    plt.tight_layout()
     plt.show()
