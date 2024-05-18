@@ -42,7 +42,7 @@ if __name__ == "__main__":
                 )
             ]
         )
-        urls = fq_gen.generate(20)
+        urls = fq_gen.generate(40)
     else:
         if file_name.endswith("csv"):
             assert args.column is not None, "Input column name"
@@ -77,8 +77,5 @@ if __name__ == "__main__":
 
     graphix.draw_distance_order_full(*dist.get_distance_order_full())
 
-    import util.graph as ga
-
-    g_lap = ga.calc_g_laplacian(coord.dist, 0.2, 0.5)
-    sn_g_lap = ga.calc_sym_norm_g_laplacian(coord.dist, 0.2, 0.5)
+    graphix.draw_g_lap_eig(dist.dist)
     

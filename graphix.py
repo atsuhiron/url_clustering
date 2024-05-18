@@ -3,6 +3,7 @@ import numpy as np
 
 from vo.total_dist import TotalDist
 from vo.reconst_coord import ReconstCoord
+import util.graph as gra
 
 
 def draw_dist_mat(dist: TotalDist):
@@ -73,4 +74,19 @@ def draw_distance_order_full(ordered_distance_mean: np.ndarray, ordered_distance
     plt.plot(np.arange(arr_size - 1), d_mean)
 
     plt.tight_layout()
+    plt.show()
+
+
+def draw_g_lap_eig(dist: np.ndarray):
+    num = 64
+    lowers = np.linspace(0, 0.5, num)
+    uppers = np.linspace(0.5, 1, num)
+    eig_ret = np.zeros((num, len(dist)))
+    for i in range(num):
+        lap = gra.calc_g_laplacian(dist, float(lowers[i]), float(uppers[i]))
+        ret = np.linalg.eigh(lap)
+        eig_ret[i] = ret.eigenvalues
+
+    for ii in range(eig_ret.shape[1]):
+        plt.plot(eig_ret[:, ii])
     plt.show()
