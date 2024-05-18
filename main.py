@@ -8,6 +8,7 @@ import graphix
 from fake_query_generator.fq_generator import FQGenerator
 from fake_query_generator.fq_cluster import FQCluster
 from fake_query_generator.fq_param import FQParam
+import util.graph as graph
 
 
 if __name__ == "__main__":
@@ -65,17 +66,19 @@ if __name__ == "__main__":
     # graphix.draw_dist_mat(dist)
 
     coord = dist.reconstruct_coord()
+    coord2 = dist.reconstruct_coord_g_lap(graph.GLapParam(0.2, 0.6))
 
     # pq.add_query(new_parsed[0])
     # new_dist = pq.get_total_dist(coord)
     # new_coord = new_dist.reconstruct_coord()
-    graphix.draw_coord(coord)
+    #graphix.draw_coord(coord)
+    graphix.draw_coord(coord2, (1, 2))
     # graphix.draw_coord(new_coord)
 
     # errors = coord.calc_reconstruction_error()
     # graphix.draw_reconstruction_error(errors)
 
-    graphix.draw_distance_order_full(*dist.get_distance_order_full())
+    #graphix.draw_distance_order_full(*dist.get_distance_order_full())
 
-    graphix.draw_g_lap_eig(dist.dist)
+    #graphix.draw_g_lap_eig(dist.dist)
     

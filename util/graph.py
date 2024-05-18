@@ -1,4 +1,12 @@
+import dataclasses
+
 import numpy as np
+
+
+@dataclasses.dataclass
+class GLapParam:
+    lower_threshold: float
+    upper_threshold: float
 
 
 def _calc_similarity(dist: np.ndarray, lower_threshold: float, upper_threshold: float) -> np.ndarray:

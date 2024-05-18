@@ -3,7 +3,7 @@ import numpy as np
 import url_locater
 from vo.reconst_coord import ReconstCoord
 import point_location_optimizer.optimizer as opt
-
+import util.graph as graph
 
 class TotalDist:
     def __init__(self, dist: np.ndarray, old_reconst: ReconstCoord | None):
@@ -55,6 +55,14 @@ class TotalDist:
         self.coord[old_deg:] = additional_coord
 
         return ReconstCoord(self.coord, self.old_order, self.dist)
+
+    def reconstruct_coord_g_lap(self, glap_param: graph.GLapParam) -> ReconstCoord:
+        glap = graph.calc_sym_norm_g_laplacian(
+            self.dist, glap_param.lower_threshold, glap_param.upper_threshold
+        )
+        self.coord, order = url_locater.locate_eigh(glap)
+        return ReconstCoord(self.coord, order, self.dist)
+
 
     def get_distance_order(self, indices_or_random_num: list[int] | np.ndarray | int = 10) -> np.ndarray:
         if isinstance(indices_or_random_num, int):

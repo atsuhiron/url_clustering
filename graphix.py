@@ -11,13 +11,16 @@ def draw_dist_mat(dist: TotalDist):
     plt.show()
 
 
-def draw_coord(coord: ReconstCoord):
+def draw_coord(coord: ReconstCoord, use_indices: tuple[int, int] | None = None):
     # TODO: クラスタリングに対応させる
     assert coord.ndim == 2, f"Not supported shape: {coord.shape}"
     assert coord.shape[1] > 1, f"Not supported shape: {coord.shape}"
 
-    _coord = coord.get_sorted_coord()
-    plt.plot(_coord[:, 0], _coord[:, 1], "o")
+    if use_indices is None:
+        use_indices = (0, 1)
+
+    _coord = coord.get_sorted_coord(deg=max(use_indices) + 1)
+    plt.plot(_coord[:, use_indices[0]], _coord[:, use_indices[1]], "o")
     plt.show()
 
 
